@@ -33,12 +33,60 @@ class Board {
       }
     }
   }
+
+  getPath(start, end) {
+    let startIndex;
+    let endIndex;
+    try {
+      startIndex = this.convertToIndex(start[0], start[1]);
+      endIndex = this.convertToIndex(end[0], end[1]);
+    } catch (e) {
+      console.log(e);
+      return;
+    }
   
+    const queue = [startIndex];
+    const edgeTo = new Array(64);
+    edgeTo[startIndex] = true;
+
+    let current = queue.shift();
+    while(current !== endIndex) {
+      const adj = this.graph.getList(current);
+      let found = null;
+      for(let v of adj) {
+        if(!edgeTo[v]) {
+          edgeTo[v] = current;
+        }
+        if(v === endIndex) found = v;
+        queue.push(v);
+      }
+      if(found) current = found;
+      else current = queue.shift();
+    }
+
+    const path = [this.convertToCoordinates(endIndex)];
+    while(current !== startIndex) {
+      path.unshift(this.convertToCoordinates(edgeTo[current]));
+      current = edgeTo[current];
+    }
+    
+    return path;
+  }
 
   convertToIndex(row, col) {
+    if(row < 0 || row >= this.width || col < 0 || col >= this.width) throw new Error("Out of bounds");
     return row * this.width + col;
+  }
+
+  convertToCoordinates(index) {
+    return [Math.floor(index / this.width), index % this.width];
   }
 }
 
 const b = new Board();
 b.makeBoard();
+console.log(b.graph.getList(27));
+console.log(b.convertToCoordinates(8));
+const path = b.getPath([6, 5], [4, 5]);
+console.log(`You made it in ${path.length} moves:`)
+for(let v of path) console.log(v);
