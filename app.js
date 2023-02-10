@@ -47,14 +47,16 @@ class Board {
   
     const queue = [startIndex];
     const edgeTo = new Array(64);
-    edgeTo[startIndex] = true;
+    const marked = new Array(64);
+    marked[startIndex] = true;
 
     let current = queue.shift();
     while(current !== endIndex) {
       const adj = this.graph.getList(current);
       let found = null;
       for(let v of adj) {
-        if(!edgeTo[v]) {
+        if(!marked[v]) {
+          marked[v] = true;
           edgeTo[v] = current;
         }
         if(v === endIndex) found = v;
@@ -69,7 +71,6 @@ class Board {
       path.unshift(this.convertToCoordinates(edgeTo[current]));
       current = edgeTo[current];
     }
-    
     return path;
   }
 
@@ -87,6 +88,6 @@ const b = new Board();
 b.makeBoard();
 console.log(b.graph.getList(27));
 console.log(b.convertToCoordinates(8));
-const path = b.getPath([6, 5], [4, 5]);
+const path = b.getPath([0, 0], [0, 1]);
 console.log(`You made it in ${path.length} moves:`)
 for(let v of path) console.log(v);
